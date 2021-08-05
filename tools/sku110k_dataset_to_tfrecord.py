@@ -23,6 +23,15 @@ flags.DEFINE_string('classes', 'classes/sku110k.names', 'classes file')
 
 def build_example(row, class_map):
     img_raw = open(row['image_fpath'], 'rb').read()
+
+    # check if image can be encoded and decoded correctly. If not, remove/skip it
+    try:
+        # check of corrupt images which are corrupt
+        _ = tf.image.decode_jpeg(img_raw)
+    except Exception as e:
+        logging.info(f'Skipping image: {row["image_fpath"].split(".")[-1]} because it cant be decoded')
+        return None
+
     key = hashlib.sha256(img_raw).hexdigest()
 
     width = int(row['image_width'])
@@ -109,6 +118,9 @@ def main(_argv):
             )
     for image_fpath in data:
         tf_example = build_example(data[image_fpath], class_map)
+        if tf_example is None:
+            # skip images which are corrupt
+            continue
         writer.write(tf_example.SerializeToString())
     writer.close()
     logging.info("Done")
