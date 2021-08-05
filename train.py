@@ -203,6 +203,8 @@ def main(_argv):
             ReduceLROnPlateau(verbose=1),
             EarlyStopping(patience=3, verbose=1),
             ModelCheckpoint('checkpoints/yolov3_train_{epoch}.tf',
+            # Naole_Edit: save only last 5 models and at location
+            ModelCheckpoint(f'{FLAGS.checkpoint_path}/yolov3_train_{epoch//5}.h5',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
         ]
@@ -210,6 +212,7 @@ def main(_argv):
         start_time = time.time()
         history = model.fit(train_dataset,
                             epochs=FLAGS.epochs,
+                            steps_per_epoch=5,
                             callbacks=callbacks,
                             validation_data=val_dataset)
         end_time = time.time() - start_time
