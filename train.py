@@ -72,7 +72,10 @@ def setup_model():
         else:
             model_pretrained = YoloV3(
                 FLAGS.size, training=True, classes=FLAGS.weights_num_classes or FLAGS.num_classes)
-        model_pretrained.load_weights(FLAGS.weights)
+        if FLAGS.weights.endswith('.tf'):
+            model_pretrained.load_weights(FLAGS.weights).expect_partial()
+        else:
+            model_pretrained.load_weights(FLAGS.weights)
 
         if FLAGS.transfer == 'darknet':
             model.get_layer('yolo_darknet').set_weights(
@@ -194,17 +197,21 @@ def main(_argv):
             model.save_weights(
                 #'checkpoints/yolov3_train_{}.tf'.format(epoch))
                 # Naole_Edit: save only last 5 models
-                '{}/yolov3_train_{}.h5'.format(FLAGS.checkpoint_path, epoch//5),
-                save_format='h5'
+                #'{}/yolov3_train_{}.h5'.format(FLAGS.checkpoint_path, epoch//5),
+                # save_format='h5'
+                '{}/yolov3_train_{}.tf'.format(FLAGS.checkpoint_path, epoch // 5),
+                save_format='tf'
             )
     else:
 
         callbacks = [
             ReduceLROnPlateau(verbose=1),
             EarlyStopping(patience=3, verbose=1),
+            # Naole_Edit: save models and at location
+            # Note: variable" epoch will be populated at runtime. So using 'f-strings' will fail
             # ModelCheckpoint('checkpoints/yolov3_train_{epoch}.tf',
-            # Naole_Edit: save only last 5 models and at location
-            ModelCheckpoint(f'{FLAGS.checkpoint_path}/yolov3_train_{epoch//5}.h5',
+            ModelCheckpoint(f'{FLAGS.checkpoint_path}/'+'yolov3_train_{epoch}.tf',
+            # ModelCheckpoint(f'{FLAGS.checkpoint_path}/'+'yolov3_train_{epoch}.h5',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
         ]
