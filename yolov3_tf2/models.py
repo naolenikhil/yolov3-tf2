@@ -119,9 +119,9 @@ def YoloConv(filters, name=None):
         x = DarknetConv(x, filters, 1)
         x = DarknetConv(x, filters * 2, 3)
         x = DarknetConv(x, filters, 1)
-        model = Model(inputs, x, name=name)(x_in)
+        model = Model(inputs, x, name=name)
         logging.info(model.summary())
-        return model
+        return model(x_in)
     return yolo_conv
 
 
@@ -139,9 +139,9 @@ def YoloConvTiny(filters, name=None):
             x = inputs = Input(x_in.shape[1:])
             x = DarknetConv(x, filters, 1)
 
-        model = Model(inputs, x, name=name)(x_in)
+        model = Model(inputs, x, name=name)
         logging.info(model.summary())
-        return model
+        return model(x_in)
     return yolo_conv
 
 
@@ -152,9 +152,9 @@ def YoloOutput(filters, anchors, classes, name=None):
         x = DarknetConv(x, anchors * (classes + 5), 1, batch_norm=False)
         x = Lambda(lambda x: tf.reshape(x, (-1, tf.shape(x)[1], tf.shape(x)[2],
                                             anchors, classes + 5)))(x)
-        model = tf.keras.Model(inputs, x, name=name)(x_in)
+        model = tf.keras.Model(inputs, x, name=name)
         logging.info(model.summary())
-        return model
+        return model(x_in)
     return yolo_output
 
 
