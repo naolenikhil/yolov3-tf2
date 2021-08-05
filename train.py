@@ -216,6 +216,8 @@ def main(_argv):
             TensorBoard(log_dir='logs')
         ]
 
+        logging.info(f'Final high level model summary')
+        loggin.info(model.summary())
         start_time = time.time()
         history = model.fit(train_dataset,
                             epochs=FLAGS.epochs,

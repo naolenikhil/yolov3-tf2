@@ -1,4 +1,4 @@
-from absl import flags
+from absl import flags, logging
 from absl.flags import FLAGS
 import numpy as np
 import tensorflow as tf
@@ -76,7 +76,9 @@ def Darknet(name=None):
     x = x_36 = DarknetBlock(x, 256, 8)  # skip connection
     x = x_61 = DarknetBlock(x, 512, 8)
     x = DarknetBlock(x, 1024, 4)
-    return tf.keras.Model(inputs, (x_36, x_61, x), name=name)
+    model = tf.keras.Model(inputs, (x_36, x_61, x), name=name)
+    logging.info(model.summary())
+    return model
 
 
 def DarknetTiny(name=None):
@@ -94,7 +96,9 @@ def DarknetTiny(name=None):
     x = DarknetConv(x, 512, 3)
     x = MaxPool2D(2, 1, 'same')(x)
     x = DarknetConv(x, 1024, 3)
-    return tf.keras.Model(inputs, (x_8, x), name=name)
+    model = tf.keras.Model(inputs, (x_8, x), name=name)
+    logging.info(model.summary())
+    return model
 
 
 def YoloConv(filters, name=None):
@@ -115,7 +119,9 @@ def YoloConv(filters, name=None):
         x = DarknetConv(x, filters, 1)
         x = DarknetConv(x, filters * 2, 3)
         x = DarknetConv(x, filters, 1)
-        return Model(inputs, x, name=name)(x_in)
+        model = Model(inputs, x, name=name)(x_in)
+        logging.info(model.summary())
+        return model
     return yolo_conv
 
 
@@ -133,7 +139,9 @@ def YoloConvTiny(filters, name=None):
             x = inputs = Input(x_in.shape[1:])
             x = DarknetConv(x, filters, 1)
 
-        return Model(inputs, x, name=name)(x_in)
+        model = Model(inputs, x, name=name)(x_in)
+        logging.info(model.summary())
+        return model
     return yolo_conv
 
 
@@ -144,7 +152,9 @@ def YoloOutput(filters, anchors, classes, name=None):
         x = DarknetConv(x, anchors * (classes + 5), 1, batch_norm=False)
         x = Lambda(lambda x: tf.reshape(x, (-1, tf.shape(x)[1], tf.shape(x)[2],
                                             anchors, classes + 5)))(x)
-        return tf.keras.Model(inputs, x, name=name)(x_in)
+        model = tf.keras.Model(inputs, x, name=name)(x_in)
+        logging.info(model.summary())
+        return model
     return yolo_output
 
 
@@ -245,7 +255,9 @@ def YoloV3(size=None, channels=3, anchors=yolo_anchors,
     output_2 = YoloOutput(128, len(masks[2]), classes, name='yolo_output_2')(x)
 
     if training:
-        return Model(inputs, (output_0, output_1, output_2), name='yolov3')
+        model = Model(inputs, (output_0, output_1, output_2), name='yolov3')
+        logging.info(model.summary())
+        return model
 
     boxes_0 = Lambda(lambda x: yolo_boxes(x, anchors[masks[0]], classes),
                      name='yolo_boxes_0')(output_0)
@@ -257,7 +269,9 @@ def YoloV3(size=None, channels=3, anchors=yolo_anchors,
     outputs = Lambda(lambda x: yolo_nms(x, anchors, masks, classes),
                      name='yolo_nms')((boxes_0[:3], boxes_1[:3], boxes_2[:3]))
 
-    return Model(inputs, outputs, name='yolov3')
+    model = Model(inputs, outputs, name='yolov3')
+    logging.info(model.summary())
+    return model
 
 
 def YoloV3Tiny(size=None, channels=3, anchors=yolo_tiny_anchors,
@@ -273,7 +287,9 @@ def YoloV3Tiny(size=None, channels=3, anchors=yolo_tiny_anchors,
     output_1 = YoloOutput(128, len(masks[1]), classes, name='yolo_output_1')(x)
 
     if training:
-        return Model(inputs, (output_0, output_1), name='yolov3')
+        model = Model(inputs, (output_0, output_1), name='yolov3')
+        logging.info(model.summary())
+        return model
 
     boxes_0 = Lambda(lambda x: yolo_boxes(x, anchors[masks[0]], classes),
                      name='yolo_boxes_0')(output_0)
@@ -281,7 +297,9 @@ def YoloV3Tiny(size=None, channels=3, anchors=yolo_tiny_anchors,
                      name='yolo_boxes_1')(output_1)
     outputs = Lambda(lambda x: yolo_nms(x, anchors, masks, classes),
                      name='yolo_nms')((boxes_0[:3], boxes_1[:3]))
-    return Model(inputs, outputs, name='yolov3_tiny')
+    model = Model(inputs, outputs, name='yolov3_tiny')
+    logging.info(model.summary())
+    return model
 
 
 def YoloLoss(anchors, classes=80, ignore_thresh=0.5):
