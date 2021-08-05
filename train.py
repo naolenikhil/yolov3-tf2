@@ -42,6 +42,7 @@ flags.DEFINE_integer('size', 416, 'image size')
 flags.DEFINE_integer('epochs', 2, 'number of epochs')
 flags.DEFINE_integer('batch_size', 8, 'batch size')
 flags.DEFINE_float('learning_rate', 1e-3, 'learning rate')
+flags.DEFINE_integer('steps_per_epoch', None, 'steps per epoch')
 flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
 flags.DEFINE_integer('weights_num_classes', None, 'specify num class for `weights` file if different, '
                      'useful in transfer learning with different number of classes')
@@ -217,11 +218,11 @@ def main(_argv):
         ]
 
         logging.info(f'Final high level model summary')
-        loggin.info(model.summary())
+        logging.info(model.summary())
         start_time = time.time()
         history = model.fit(train_dataset,
                             epochs=FLAGS.epochs,
-                            steps_per_epoch=5,
+                            steps_per_epoch=FLAGS.steps_per_epoch,
                             callbacks=callbacks,
                             validation_data=val_dataset)
         end_time = time.time() - start_time
