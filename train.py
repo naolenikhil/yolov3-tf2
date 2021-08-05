@@ -202,7 +202,7 @@ def main(_argv):
         callbacks = [
             ReduceLROnPlateau(verbose=1),
             EarlyStopping(patience=3, verbose=1),
-            ModelCheckpoint('checkpoints/yolov3_train_{epoch}.tf',
+            # ModelCheckpoint('checkpoints/yolov3_train_{epoch}.tf',
             # Naole_Edit: save only last 5 models and at location
             ModelCheckpoint(f'{FLAGS.checkpoint_path}/yolov3_train_{epoch//5}.h5',
                             verbose=1, save_weights_only=True),
