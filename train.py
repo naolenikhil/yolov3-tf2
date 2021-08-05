@@ -24,6 +24,8 @@ flags.DEFINE_string('val_dataset', '', 'path to validation dataset')
 flags.DEFINE_boolean('tiny', False, 'yolov3 or yolov3-tiny')
 flags.DEFINE_string('weights', './checkpoints/yolov3.tf',
                     'path to weights file')
+flags.DEFINE_string('checkpoint_path', './checkpoints',
+                    'directory path to save checkpoints')
 flags.DEFINE_string('classes', './data/coco.names', 'path to classes file')
 flags.DEFINE_enum('mode', 'fit', ['fit', 'eager_fit', 'eager_tf'],
                   'fit: model.fit, '
@@ -192,7 +194,7 @@ def main(_argv):
             model.save_weights(
                 #'checkpoints/yolov3_train_{}.tf'.format(epoch))
                 # Naole_Edit: save only last 5 models
-                'checkpoints/yolov3_train_{}.h5'.format(epoch//5),
+                '{}/yolov3_train_{}.h5'.format(FLAGS.checkpoint_path, epoch//5),
                 save_format='h5'
             )
     else:
