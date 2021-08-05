@@ -192,7 +192,9 @@ def main(_argv):
             model.save_weights(
                 #'checkpoints/yolov3_train_{}.tf'.format(epoch))
                 # Naole_Edit: save only last 5 models
-                'checkpoints/yolov3_train_{}.tf'.format(epoch//5))
+                'checkpoints/yolov3_train_{}.h5'.format(epoch//5),
+                save_format='h5'
+            )
     else:
 
         callbacks = [
