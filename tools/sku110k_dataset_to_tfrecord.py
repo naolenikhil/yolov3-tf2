@@ -8,6 +8,7 @@ import tensorflow as tf
 #import lxml.etree
 import tqdm
 import pandas as pd
+from struct import unpack
 
 
 flags.DEFINE_string('data_dir',
@@ -21,6 +22,43 @@ flags.DEFINE_string('split_name', 'annotations_train.csv', 'specify annotations_
 flags.DEFINE_string('classes', 'classes/sku110k.names', 'classes file')
 
 
+# we need to check Jpeg images as some are corrupt causing model training to fail.
+# Lets remove such images
+# source https://github.com/tensorflow/tpu/issues/455
+
+marker_mapping = {
+    0xffd8: "Start of Image",
+    0xffe0: "Application Default Header",
+    0xffdb: "Quantization Table",
+    0xffc0: "Start of Frame",
+    0xffc4: "Define Huffman Table",
+    0xffda: "Start of Scan",
+    0xffd9: "End of Image"
+}
+
+class JPEG:
+    def __init__(self, image_file):
+        with open(image_file, 'rb') as f:
+            self.img_data = f.read()
+
+    def decode(self):
+        data = self.img_data
+        while(True):
+            marker, = unpack(">H", data[0:2])
+            # print(marker_mapping.get(marker))
+            if marker == 0xffd8:
+                data = data[2:]
+            elif marker == 0xffd9:
+                return
+            elif marker == 0xffda:
+                data = data[-2:]
+            else:
+                lenchunk, = unpack(">H", data[2:4])
+                data = data[2 + lenchunk:]
+            if len(data) == 0:
+                break
+
+
 def build_example(row, class_map):
     img_raw = open(row['image_fpath'], 'rb').read()
 
@@ -28,8 +66,10 @@ def build_example(row, class_map):
     try:
         # check of corrupt images which are corrupt
         _ = tf.image.decode_jpeg(img_raw)
+        _image = JPEG(row['image_fpath'])
+        _image.decode()
     except Exception as e:
-        logging.info(f'Skipping image: {row["image_fpath"].split(".")[-1]} because it cant be decoded')
+        logging.info(f'Skipping image: {row["image_fpath"].split("/")[-1]} because it cant be decoded')
         return None
 
     key = hashlib.sha256(img_raw).hexdigest()
