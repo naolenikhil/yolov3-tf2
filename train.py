@@ -190,7 +190,9 @@ def main(_argv):
             avg_loss.reset_states()
             avg_val_loss.reset_states()
             model.save_weights(
-                'checkpoints/yolov3_train_{}.tf'.format(epoch))
+                #'checkpoints/yolov3_train_{}.tf'.format(epoch))
+                # Naole_Edit: save only last 5 models
+                'checkpoints/yolov3_train_{}.tf'.format(epoch//5))
     else:
 
         callbacks = [

@@ -30,7 +30,7 @@ def main(_argv):
     output = yolo(img)
     logging.info('sanity check passed')
 
-    yolo.save_weights(FLAGS.output)
+    yolo.save_weights(FLAGS.output, save_format='h5')
     logging.info('weights saved')
 
 

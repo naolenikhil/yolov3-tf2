@@ -5,7 +5,7 @@ import hashlib
 from absl import app, flags, logging
 from absl.flags import FLAGS
 import tensorflow as tf
-import lxml.etree
+#import lxml.etree
 import tqdm
 import pandas as pd
 
