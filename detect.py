@@ -31,7 +31,10 @@ def main(_argv):
     else:
         yolo = YoloV3(classes=FLAGS.num_classes)
 
-    yolo.load_weights(FLAGS.weights).expect_partial()
+    if FLAGS.weights.endswith('.tf'):
+        yolo.load_weights(FLAGS.weights).expect_partial()
+    else:
+        yolo.load_weights(FLAGS.weights)
     logging.info('weights loaded')
 
     class_names = [c.strip() for c in open(FLAGS.classes).readlines()]
