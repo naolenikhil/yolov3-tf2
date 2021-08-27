@@ -12,10 +12,10 @@ from struct import unpack
 
 
 flags.DEFINE_string('data_dir',
-                    '/Users/nikhilnaole/Desktop/delete_later/planogram/instore_data/multi-object-detection/datasets/sku110k_cvpr19/SKU110K_fixed/annotations',
+                    './datasets/sku110k_cvpr19/SKU110K_fixed/annotations',
                     'path to raw SKU110k train/test/val directory')
 flags.DEFINE_string('image_dir',
-                    '/Users/nikhilnaole/Desktop/delete_later/planogram/instore_data/multi-object-detection/datasets/sku110k_cvpr19/SKU110K_fixed/images',
+                    './datasets/sku110k_cvpr19/SKU110K_fixed/images',
                     'path to all images'
                     )
 flags.DEFINE_string('split_name', 'annotations_train.csv', 'specify annotations_{train|test|val}.csv')
